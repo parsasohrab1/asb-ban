@@ -1,0 +1,89 @@
+import express, { Express, Request, Response, NextFunction } from 'express';
+import cors from 'cors';
+import helmet from 'helmet';
+import compression from 'compression';
+import morgan from 'morgan';
+import dotenv from 'dotenv';
+import { errorHandler } from './middleware/errorHandler';
+import { connectDatabase } from './database/connection';
+import { connectRedis } from './database/redis';
+
+// Routes
+import authRoutes from './routes/auth';
+import blogRoutes from './routes/blog';
+import serviceRoutes from './routes/services';
+import shopRoutes from './routes/shop';
+import competitionRoutes from './routes/competitions';
+
+dotenv.config();
+
+const app: Express = express();
+const PORT = process.env.PORT || 3000;
+
+// Middleware
+app.use(helmet());
+app.use(cors({
+  origin: process.env.FRONTEND_URL || 'http://localhost:3001',
+  credentials: true
+}));
+app.use(compression());
+app.use(morgan('dev'));
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+// Static files
+app.use('/uploads', express.static('uploads'));
+
+// Health check
+app.get('/health', (req: Request, res: Response) => {
+  res.json({ 
+    status: 'ok', 
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV || 'development'
+  });
+});
+
+// API Routes
+app.use('/api/auth', authRoutes);
+app.use('/api/blog', blogRoutes);
+app.use('/api/services', serviceRoutes);
+app.use('/api/shop', shopRoutes);
+app.use('/api/competitions', competitionRoutes);
+
+// 404 handler
+app.use((req: Request, res: Response) => {
+  res.status(404).json({ 
+    success: false, 
+    message: 'Route not found' 
+  });
+});
+
+// Error handler
+app.use(errorHandler);
+
+// Start server
+const startServer = async () => {
+  try {
+    // Connect to database
+    await connectDatabase();
+    console.log('✅ Database connected successfully');
+
+    // Connect to Redis
+    await connectRedis();
+    console.log('✅ Redis connected successfully');
+
+    // Start listening
+    app.listen(PORT, () => {
+      console.log(`🚀 Server is running on port ${PORT}`);
+      console.log(`📝 Environment: ${process.env.NODE_ENV || 'development'}`);
+    });
+  } catch (error) {
+    console.error('❌ Failed to start server:', error);
+    process.exit(1);
+  }
+};
+
+startServer();
+
+export default app;
+
