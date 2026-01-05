@@ -12,5 +12,6 @@
     <string name="password">رمز عبور</string>
     <string name="full_name">نام کامل</string>
     <string name="phone">تلفن</string>
+    <string name="neshan_api_key">YOUR_NESHAN_API_KEY</string>
 </resources>
 

@@ -94,11 +94,9 @@ dependencies {
     // DataStore (برای ذخیره token و تنظیمات)
     implementation("androidx.datastore:datastore-preferences:1.0.0")
     
-    // Google Maps
-    implementation("com.google.android.gms:play-services-maps:18.2.0")
+    // Neshan Maps
+    implementation("ir.neshan:neshan-android-sdk:1.0.0")
     implementation("com.google.android.gms:play-services-location:21.0.1")
-    implementation("com.google.maps.android:maps-compose:4.3.0")
-    implementation("com.google.maps.android:maps-compose-utils:4.3.0")
     
     // Splash Screen
     implementation("androidx.core:core-splashscreen:1.0.1")

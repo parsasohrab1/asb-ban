@@ -67,8 +67,10 @@
 
 در `.env.local` اضافه کنید:
 ```
-NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=your_api_key
+NEXT_PUBLIC_NESHAN_API_KEY=your_neshan_api_key
 ```
+
+**نکته**: این پروژه از نقشه نشان (Neshan Maps) استفاده می‌کند که یک سرویس نقشه ایرانی است.
 
 ## تغییرات در Android
 
@@ -130,13 +132,15 @@ NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=your_api_key
 }
 ```
 
-#### دریافت Google Maps API Key
+#### دریافت Neshan Maps API Key
 
-1. به [Google Cloud Console](https://console.cloud.google.com/) بروید
-2. پروژه جدید ایجاد کنید
-3. Maps JavaScript API را فعال کنید
-4. API Key ایجاد کنید
+1. به [پنل توسعه‌دهندگان نشان](https://developer.neshan.org/) بروید
+2. ثبت‌نام یا ورود کنید
+3. پروژه جدید ایجاد کنید
+4. API Key دریافت کنید
 5. در فایل‌های `.env` و `AndroidManifest.xml` قرار دهید
+
+برای جزئیات بیشتر، به [NESHAN-MAPS-SETUP.md](NESHAN-MAPS-SETUP.md) مراجعه کنید.
 
 ## نکات مهم
 

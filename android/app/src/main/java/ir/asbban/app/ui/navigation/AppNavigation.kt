@@ -8,7 +8,7 @@ import ir.asbban.app.ui.screens.home.HomeScreen
 import ir.asbban.app.ui.screens.blog.BlogScreen
 import ir.asbban.app.ui.screens.shop.ShopScreen
 import ir.asbban.app.ui.screens.services.ServicesScreen
-import ir.asbban.app.ui.screens.services.MapScreen
+import ir.asbban.app.ui.screens.services.MapScreenNeshan
 import ir.asbban.app.ui.screens.competitions.CompetitionsScreen
 import ir.asbban.app.ui.screens.auth.LoginScreen
 
@@ -33,7 +33,7 @@ fun AppNavigation() {
             ServicesScreen(navController = navController)
         }
         composable("services/map") {
-            MapScreen(
+            MapScreenNeshan(
                 serviceType = "veterinarian",
                 onProviderSelect = { providerId ->
                     // Navigate to booking screen
