@@ -11,6 +11,7 @@ import ir.asbban.app.ui.screens.services.ServicesScreen
 import ir.asbban.app.ui.screens.services.MapScreenNeshan
 import ir.asbban.app.ui.screens.competitions.CompetitionsScreen
 import ir.asbban.app.ui.screens.auth.LoginScreen
+import ir.asbban.app.ui.screens.profile.ProfileScreen
 
 @Composable
 fun AppNavigation() {
@@ -46,6 +47,9 @@ fun AppNavigation() {
         }
         composable("login") {
             LoginScreen(navController = navController)
+        }
+        composable("profile") {
+            ProfileScreen(navController = navController)
         }
     }
 }

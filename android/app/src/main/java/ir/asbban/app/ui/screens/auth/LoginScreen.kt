@@ -8,6 +8,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import ir.asbban.app.data.local.TokenManager
+import ir.asbban.app.data.remote.RetrofitClient
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -60,7 +65,29 @@ fun LoginScreen(navController: NavController) {
             Spacer(modifier = Modifier.height(24.dp))
             
             Button(
-                onClick = { /* TODO: Implement login */ },
+                onClick = {
+                    CoroutineScope(Dispatchers.IO).launch {
+                        try {
+                            val response = RetrofitClient.apiService.login(
+                                ir.asbban.app.data.model.LoginRequest(
+                                    email = email,
+                                    password = password
+                                )
+                            )
+                            if (response.isSuccessful) {
+                                response.body()?.data?.let { authData ->
+                                    TokenManager.saveToken(authData.token)
+                                    TokenManager.saveUserId(authData.user.id.toString())
+                                    navController.navigate("home") {
+                                        popUpTo(0) { inclusive = true }
+                                    }
+                                }
+                            }
+                        } catch (e: Exception) {
+                            // Handle error
+                        }
+                    }
+                },
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text("ورود")

@@ -1,6 +1,7 @@
 package ir.asbban.app.data.remote
 
 import ir.asbban.app.data.model.*
+import ir.asbban.app.data.model.ApiResponse
 import retrofit2.Response
 import retrofit2.http.*
 
@@ -13,10 +14,10 @@ interface ApiService {
     suspend fun login(@Body request: LoginRequest): Response<AuthResponse>
     
     @GET("auth/profile")
-    suspend fun getProfile(): Response<User>
+    suspend fun getProfile(): Response<ApiResponse<User>>
     
     @PUT("auth/profile")
-    suspend fun updateProfile(@Body user: User): Response<User>
+    suspend fun updateProfile(@Body user: User): Response<ApiResponse<User>>
     
     // Blog
     @GET("blog/posts")

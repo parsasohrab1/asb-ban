@@ -7,6 +7,7 @@ import dotenv from 'dotenv';
 import { errorHandler } from './middleware/errorHandler';
 import { connectDatabase } from './database/connection';
 import { connectRedis } from './database/redis';
+import { setupSwagger } from './swagger';
 
 // Routes
 import authRoutes from './routes/auth';
@@ -14,6 +15,9 @@ import blogRoutes from './routes/blog';
 import serviceRoutes from './routes/services';
 import shopRoutes from './routes/shop';
 import competitionRoutes from './routes/competitions';
+import notificationsRoutes from './routes/notifications';
+import searchRoutes from './routes/search';
+import uploadRoutes from './routes/upload';
 
 dotenv.config();
 
@@ -43,12 +47,20 @@ app.get('/health', (req: Request, res: Response) => {
   });
 });
 
+// Swagger API Documentation
+if (process.env.NODE_ENV !== 'production' || process.env.ENABLE_SWAGGER === 'true') {
+  setupSwagger(app);
+}
+
 // API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/blog', blogRoutes);
 app.use('/api/services', serviceRoutes);
 app.use('/api/shop', shopRoutes);
 app.use('/api/competitions', competitionRoutes);
+app.use('/api/notifications', notificationsRoutes);
+app.use('/api/search', searchRoutes);
+app.use('/api/upload', uploadRoutes);
 
 // 404 handler
 app.use((req: Request, res: Response) => {

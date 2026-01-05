@@ -53,6 +53,9 @@ export const blogAPI = {
   getPost: (slug: string) => api.get(`/blog/posts/${slug}`),
   searchPosts: (query: string) => api.get('/blog/posts/search', { params: { q: query } }),
   getCategories: () => api.get('/blog/categories'),
+  createPost: (data: any) => api.post('/blog/posts', data),
+  updatePost: (id: number, data: any) => api.put(`/blog/posts/${id}`, data),
+  deletePost: (id: number) => api.delete(`/blog/posts/${id}`),
 };
 
 export const servicesAPI = {
@@ -84,5 +87,42 @@ export const competitionsAPI = {
     api.get('/competitions', { params }),
   getCompetition: (slug: string) => api.get(`/competitions/${slug}`),
   getResults: (id: string) => api.get(`/competitions/${id}/results`),
+};
+
+export const searchAPI = {
+  globalSearch: (params: { q: string; type?: string; category?: string; sort?: string; page?: number; limit?: number }) =>
+    api.get('/search', { params }),
+};
+
+export const notificationsAPI = {
+  getNotifications: (limit?: number) => api.get('/notifications', { params: { limit } }),
+  getUnreadCount: () => api.get('/notifications/unread-count'),
+  markAsRead: (id: number) => api.put(`/notifications/${id}/read`),
+  markAllAsRead: () => api.put('/notifications/read-all'),
+  deleteNotification: (id: number) => api.delete(`/notifications/${id}`),
+};
+
+export const uploadAPI = {
+  uploadImage: (file: File) => {
+    const formData = new FormData();
+    formData.append('image', file);
+    return api.post('/upload/image', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+  },
+  uploadImages: (files: File[]) => {
+    const formData = new FormData();
+    files.forEach((file) => formData.append('images', file));
+    return api.post('/upload/images', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+  },
+  uploadAvatar: (file: File) => {
+    const formData = new FormData();
+    formData.append('avatar', file);
+    return api.post('/upload/avatar', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+  },
 };
 

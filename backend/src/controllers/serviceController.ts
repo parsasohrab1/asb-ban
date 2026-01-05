@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { query } from '../database/connection';
 import { createError } from '../middleware/errorHandler';
 import { AuthRequest } from '../middleware/auth';
+import { createNotification } from '../services/notificationService';
 
 export const getVeterinarians = async (
   req: Request,
@@ -397,6 +398,20 @@ export const createBooking = async (
        RETURNING *`,
       [userId, service_type, service_provider_id, booking_date, description]
     );
+
+    // Create notification for booking
+    try {
+      const serviceName = service_type === 'veterinarian' ? 'دامپزشک' : 'اسب‌کش';
+      await createNotification(
+        userId,
+        'booking',
+        'رزرو جدید',
+        `رزرو شما برای ${serviceName} با موفقیت ثبت شد.`,
+        `/profile/bookings/${result.rows[0].id}`
+      );
+    } catch (notifError) {
+      console.error('Error creating notification:', notifError);
+    }
 
     res.status(201).json({
       success: true,

@@ -215,6 +215,19 @@ export const createOrder = async (
       [orderId]
     );
 
+    // Create notification for order
+    try {
+      await createNotification(
+        userId,
+        'order',
+        'سفارش جدید',
+        `سفارش شما با شماره ${orderNumber} ثبت شد. مبلغ کل: ${totalAmount.toLocaleString('fa-IR')} تومان`,
+        `/profile/orders/${orderId}`
+      );
+    } catch (notifError) {
+      console.error('Error creating notification:', notifError);
+    }
+
     res.status(201).json({
       success: true,
       message: 'Order created successfully',
