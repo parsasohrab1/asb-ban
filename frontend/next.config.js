@@ -12,7 +12,7 @@ const nextConfig = {
   // Performance optimizations
   compress: true,
   
-  // PWA configuration
+  // PWA configuration and headers
   async headers() {
     return [
       {

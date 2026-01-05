@@ -94,12 +94,23 @@ dependencies {
     // DataStore (برای ذخیره token و تنظیمات)
     implementation("androidx.datastore:datastore-preferences:1.0.0")
     
+    // Room Database (برای Offline Mode)
+    implementation("androidx.room:room-runtime:2.6.1")
+    implementation("androidx.room:room-ktx:2.6.1")
+    kapt("androidx.room:room-compiler:2.6.1")
+    
+    // WorkManager (برای Background Tasks و بهینه‌سازی مصرف باتری)
+    implementation("androidx.work:work-runtime-ktx:2.9.0")
+    
     // Neshan Maps
     implementation("ir.neshan:neshan-android-sdk:1.0.0")
     implementation("com.google.android.gms:play-services-location:21.0.1")
     
     // Splash Screen
     implementation("androidx.core:core-splashscreen:1.0.1")
+    
+    // Gson (برای Type Converters)
+    implementation("com.google.code.gson:gson:2.10.1")
     
     // Testing
     testImplementation("junit:junit:4.13.2")

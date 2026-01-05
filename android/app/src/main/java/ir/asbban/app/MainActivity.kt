@@ -11,6 +11,8 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import ir.asbban.app.data.local.TokenManager
 import ir.asbban.app.ui.navigation.AppNavigation
 import ir.asbban.app.ui.theme.AsbBanTheme
+import coil.ImageLoader
+import coil.compose.LocalImageLoader
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -20,12 +22,17 @@ class MainActivity : ComponentActivity() {
         // Initialize TokenManager
         TokenManager.init(this)
         
+        val application = application as AsbBanApplication
+        val imageLoader = application.imageLoader
+        
         setContent {
             AsbBanTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
+                    // Provide ImageLoader to Coil
+                    coil.compose.LocalImageLoader.current = imageLoader
                     AppNavigation()
                 }
             }

@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { authAPI } from '@/lib/api';
 import { FaUser, FaEnvelope, FaPhone, FaEdit, FaSave, FaTimes } from 'react-icons/fa';
 import ImageUpload from '@/components/ImageUpload';
+import PushNotificationManager from '@/components/PushNotificationManager';
 
 interface UserProfile {
   id: number;
@@ -261,6 +262,16 @@ export default function ProfilePage() {
             <label className="block text-sm font-medium text-gray-700 mb-2">عضو از</label>
             <div className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50">
               {new Date(profile.created_at).toLocaleDateString('fa-IR')}
+            </div>
+          </div>
+
+          {/* Push Notifications */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              اعلان‌های Push
+            </label>
+            <div className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50">
+              <PushNotificationManager />
             </div>
           </div>
         </div>

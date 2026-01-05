@@ -3,6 +3,7 @@ import { Inter } from 'next/font/google';
 import './globals.css';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import ServiceWorkerRegistration from '@/components/ServiceWorkerRegistration';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -16,6 +17,9 @@ export const metadata: Metadata = {
     capable: true,
     statusBarStyle: 'default',
     title: 'اسب بان'
+  },
+  other: {
+    'mobile-web-app-capable': 'yes'
   }
 };
 
@@ -29,8 +33,10 @@ export default function RootLayout({
       <head>
         <link rel="icon" href="/favicon.ico" />
         <link rel="apple-touch-icon" href="/icon-192x192.png" />
+        <meta name="mobile-web-app-capable" content="yes" />
       </head>
       <body className={inter.className}>
+        <ServiceWorkerRegistration />
         <Header />
         <main className="min-h-screen">{children}</main>
         <Footer />
@@ -38,4 +44,3 @@ export default function RootLayout({
     </html>
   );
 }
-

@@ -102,6 +102,15 @@ export const notificationsAPI = {
   deleteNotification: (id: number) => api.delete(`/notifications/${id}`),
 };
 
+export const pushAPI = {
+  getVAPIDKey: () => api.get('/push/vapid-key'),
+  subscribe: (subscription: any) => api.post('/push/subscribe', { subscription }),
+  unsubscribe: (endpoint: string) => api.post('/push/unsubscribe', { endpoint }),
+  getSubscriptions: () => api.get('/push/subscriptions'),
+  test: (data: { title: string; message: string; link?: string; type?: string }) =>
+    api.post('/push/test', data),
+};
+
 export const uploadAPI = {
   uploadImage: (file: File) => {
     const formData = new FormData();

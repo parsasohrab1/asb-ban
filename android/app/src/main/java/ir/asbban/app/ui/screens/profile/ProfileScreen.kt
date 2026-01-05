@@ -205,7 +205,7 @@ fun ProfileScreen(
                                 Icon(Icons.Default.ChevronLeft, contentDescription = null)
                             },
                             modifier = Modifier.clickable {
-                                // Navigate to orders
+                                navController.navigate("profile/orders")
                             }
                         )
                         Divider()
@@ -218,7 +218,20 @@ fun ProfileScreen(
                                 Icon(Icons.Default.ChevronLeft, contentDescription = null)
                             },
                             modifier = Modifier.clickable {
-                                // Navigate to bookings
+                                navController.navigate("profile/bookings")
+                            }
+                        )
+                        Divider()
+                        ListItem(
+                            headlineContent = { Text("تنظیمات") },
+                            leadingContent = {
+                                Icon(Icons.Default.Settings, contentDescription = null)
+                            },
+                            trailingContent = {
+                                Icon(Icons.Default.ChevronLeft, contentDescription = null)
+                            },
+                            modifier = Modifier.clickable {
+                                navController.navigate("settings")
                             }
                         )
                     }
