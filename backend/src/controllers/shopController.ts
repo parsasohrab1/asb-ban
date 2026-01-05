@@ -2,6 +2,8 @@ import { Request, Response, NextFunction } from 'express';
 import { query } from '../database/connection';
 import { createError } from '../middleware/errorHandler';
 import { AuthRequest } from '../middleware/auth';
+import { sendOrderConfirmationEmail, sendOrderStatusUpdateEmail } from '../services/emailService';
+import { createNotification } from '../services/notificationService';
 
 // Helper function to create slug
 const createSlug = (text: string): string => {
@@ -215,6 +217,20 @@ export const createOrder = async (
       [orderId]
     );
 
+    // Get user info for email
+    const userResult = await query(
+      'SELECT email, full_name FROM users WHERE id = $1',
+      [userId]
+    );
+    const user = userResult.rows[0];
+
+    // Prepare order items for email
+    const orderItems = finalOrder.rows[0].items.map((item: any) => ({
+      name: item.product_name,
+      quantity: item.quantity,
+      price: parseFloat(item.price),
+    }));
+
     // Create notification for order
     try {
       await createNotification(
@@ -226,6 +242,23 @@ export const createOrder = async (
       );
     } catch (notifError) {
       console.error('Error creating notification:', notifError);
+    }
+
+    // Send order confirmation email
+    try {
+      await sendOrderConfirmationEmail(
+        user.email,
+        user.full_name,
+        {
+          orderNumber,
+          totalAmount,
+          items: orderItems,
+          shippingAddress: shipping_address,
+        }
+      );
+    } catch (emailError) {
+      console.error('Error sending order confirmation email:', emailError);
+      // Don't fail order creation if email fails
     }
 
     res.status(201).json({
@@ -343,6 +376,30 @@ export const updateOrderStatus = async (
 
     if (result.rows.length === 0) {
       return next(createError('Order not found', 404));
+    }
+
+    const order = result.rows[0];
+
+    // Send status update email if status changed
+    if (status) {
+      try {
+        const userResult = await query(
+          'SELECT email, full_name FROM users WHERE id = $1',
+          [order.user_id]
+        );
+        if (userResult.rows.length > 0) {
+          const user = userResult.rows[0];
+          await sendOrderStatusUpdateEmail(
+            user.email,
+            user.full_name,
+            order.order_number,
+            status
+          );
+        }
+      } catch (emailError) {
+        console.error('Error sending order status update email:', emailError);
+        // Don't fail status update if email fails
+      }
     }
 
     res.json({

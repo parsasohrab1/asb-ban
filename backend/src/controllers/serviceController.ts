@@ -3,6 +3,7 @@ import { query } from '../database/connection';
 import { createError } from '../middleware/errorHandler';
 import { AuthRequest } from '../middleware/auth';
 import { createNotification } from '../services/notificationService';
+import { sendBookingReminderEmail } from '../services/emailService';
 
 export const getVeterinarians = async (
   req: Request,
@@ -399,9 +400,29 @@ export const createBooking = async (
       [userId, service_type, service_provider_id, booking_date, description]
     );
 
+    // Get user info
+    const userResult = await query(
+      'SELECT email, full_name FROM users WHERE id = $1',
+      [userId]
+    );
+    const user = userResult.rows[0];
+
+    // Get service provider info
+    const tableName = service_type === 'veterinarian' ? 'veterinarians' : 'horse_transporters';
+    const providerResult = await query(
+      `SELECT ${service_type === 'veterinarian' ? 'full_name' : 'contact_name'} as name FROM ${tableName} WHERE id = $1`,
+      [service_provider_id]
+    );
+    const serviceName = service_type === 'veterinarian' ? 'دامپزشک' : 'اسب‌کش';
+    const providerName = providerResult.rows[0]?.name || serviceName;
+
+    // Parse booking date
+    const bookingDate = new Date(booking_date);
+    const dateStr = bookingDate.toLocaleDateString('fa-IR');
+    const timeStr = bookingDate.toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit' });
+
     // Create notification for booking
     try {
-      const serviceName = service_type === 'veterinarian' ? 'دامپزشک' : 'اسب‌کش';
       await createNotification(
         userId,
         'booking',
@@ -411,6 +432,21 @@ export const createBooking = async (
       );
     } catch (notifError) {
       console.error('Error creating notification:', notifError);
+    }
+
+    // Send booking confirmation email
+    try {
+      await sendBookingReminderEmail(
+        user.email,
+        user.full_name,
+        service_type,
+        providerName,
+        dateStr,
+        timeStr
+      );
+    } catch (emailError) {
+      console.error('Error sending booking email:', emailError);
+      // Don't fail booking creation if email fails
     }
 
     res.status(201).json({

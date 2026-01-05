@@ -18,6 +18,7 @@ import competitionRoutes from './routes/competitions';
 import notificationsRoutes from './routes/notifications';
 import searchRoutes from './routes/search';
 import uploadRoutes from './routes/upload';
+import pushRoutes from './routes/push';
 
 dotenv.config();
 
@@ -37,6 +38,9 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Static files
 app.use('/uploads', express.static('uploads'));
+
+// Don't serve Next.js static files from backend
+// Next.js handles its own static files on port 3001
 
 // Health check
 app.get('/health', (req: Request, res: Response) => {
@@ -61,6 +65,7 @@ app.use('/api/competitions', competitionRoutes);
 app.use('/api/notifications', notificationsRoutes);
 app.use('/api/search', searchRoutes);
 app.use('/api/upload', uploadRoutes);
+app.use('/api/push', pushRoutes);
 
 // 404 handler
 app.use((req: Request, res: Response) => {

@@ -1,5 +1,6 @@
 import { query } from '../database/connection';
 import { getCache, setCache } from '../database/redis';
+import { sendPushNotificationToUser } from './pushService';
 
 export interface Notification {
   id: number;
@@ -30,6 +31,21 @@ export const createNotification = async (
 
     // Invalidate user notifications cache
     await setCache(`notifications:${userId}`, null, 0);
+
+    // Send push notification if enabled
+    try {
+      if (process.env.PUSH_NOTIFICATIONS_ENABLED === 'true') {
+        await sendPushNotificationToUser(userId, {
+          title,
+          message,
+          link: link || undefined,
+          type,
+        });
+      }
+    } catch (pushError) {
+      console.error('Error sending push notification:', pushError);
+      // Don't fail notification creation if push fails
+    }
 
     return result.rows[0];
   } catch (error) {

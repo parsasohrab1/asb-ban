@@ -4,6 +4,7 @@ import jwt from 'jsonwebtoken';
 import { query } from '../database/connection';
 import { createError } from '../middleware/errorHandler';
 import { AuthRequest } from '../middleware/auth';
+import { sendRegistrationEmail, sendPasswordResetEmail } from '../services/emailService';
 
 export const register = async (
   req: Request,
@@ -42,6 +43,14 @@ export const register = async (
       process.env.JWT_SECRET || 'default_secret',
       { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
     );
+
+    // Send registration email
+    try {
+      await sendRegistrationEmail(user.email, user.full_name);
+    } catch (emailError) {
+      console.error('Error sending registration email:', emailError);
+      // Don't fail registration if email fails
+    }
 
     res.status(201).json({
       success: true,
@@ -184,6 +193,102 @@ export const updateProfile = async (
       success: true,
       message: 'Profile updated successfully',
       data: result.rows[0]
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const forgotPassword = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { email } = req.body;
+
+    // Find user
+    const result = await query(
+      'SELECT id, email, full_name FROM users WHERE email = $1',
+      [email]
+    );
+
+    if (result.rows.length === 0) {
+      // Don't reveal if user exists or not for security
+      return res.json({
+        success: true,
+        message: 'If the email exists, a password reset link has been sent'
+      });
+    }
+
+    const user = result.rows[0];
+
+    // Generate reset token (valid for 1 hour)
+    const resetToken = jwt.sign(
+      { id: user.id, email: user.email, type: 'password_reset' },
+      process.env.JWT_SECRET || 'default_secret',
+      { expiresIn: '1h' }
+    );
+
+    // Store reset token in database (optional - you can create a password_resets table)
+    // For now, we'll just send the email with the token
+
+    // Send password reset email
+    try {
+      await sendPasswordResetEmail(user.email, user.full_name, resetToken);
+    } catch (emailError) {
+      console.error('Error sending password reset email:', emailError);
+      return next(createError('Failed to send reset email', 500));
+    }
+
+    res.json({
+      success: true,
+      message: 'If the email exists, a password reset link has been sent'
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const resetPassword = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { token, newPassword } = req.body;
+
+    if (!token || !newPassword) {
+      return next(createError('Token and new password are required', 400));
+    }
+
+    // Verify token
+    let decoded: any;
+    try {
+      decoded = jwt.verify(token, process.env.JWT_SECRET || 'default_secret') as any;
+      if (decoded.type !== 'password_reset') {
+        return next(createError('Invalid token type', 400));
+      }
+    } catch (error) {
+      return next(createError('Invalid or expired token', 400));
+    }
+
+    // Hash new password
+    const passwordHash = await bcrypt.hash(newPassword, 10);
+
+    // Update password
+    const result = await query(
+      'UPDATE users SET password_hash = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2 RETURNING id',
+      [passwordHash, decoded.id]
+    );
+
+    if (result.rows.length === 0) {
+      return next(createError('User not found', 404));
+    }
+
+    res.json({
+      success: true,
+      message: 'Password reset successfully'
     });
   } catch (error) {
     next(error);
